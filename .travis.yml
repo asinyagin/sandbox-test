@@ -3,17 +3,12 @@ dist: trusty
 
 language: node_js
 
-env:
-  - CXX=g++-4.8
-  
 node_js:
   - "4"
   
 addons:
   apt:
     sources:
-    - ubuntu-toolchain-r-test
     - ethereum
     packages:
-    - g++-4.8
     - solc
