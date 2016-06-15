@@ -1,30 +1,25 @@
+var fs = require('fs');
 var assert = require('assert');
-var Compiler = require('solidity-compiler');
-var server = require('ethereum-sandbox-test');
+var solc = require('solc');
 var Sandbox = require('ethereum-sandbox-client');
 
 describe('Contract', function() {
   this.timeout(60000);
 
-  var compiler = new Compiler('contracts');
-  var sandbox = new Sandbox('http://localhost:8555');
+  
+  var sandbox = new Sandbox('http://localhost:8554');
+  var compiled = compile('contracts', ['contract.sol']);
   var contract;
   
   before(function(done) {
-    server.start(function() {
-      sandbox.start(function(err) {
+    sandbox.start(function(err) {
+      if (err) return done(err);
+  
+      contract = sandbox.web3.eth.contract(JSON.parse(compiled.contracts['Contract'].interface)).new({
+        data: '0x' + compiled.contracts['Contract'].bytecode
+      }, function(err, created) {
         if (err) return done(err);
-        
-        compiler.compile('contract.sol', function(err, compiled) {
-          if (err) return done(err);
-          
-          contract = sandbox.web3.eth.contract(compiled[0].abi).new({
-            data: '0x' + compiled[0].binary
-          }, function(err, created) {
-            if (err) return done(err);
-            if (created.address) done();
-          });
-        });
+        if (created.address) done();
       });
     });
   });
@@ -94,4 +89,18 @@ function toArray(str) {
   }
   
   return arr;
+}
+
+function compile(dir, files) {
+  var input = {};
+  files.forEach(function(file) {
+    input[file] = fs.readFileSync(dir + '/' + file).toString();
+  });
+  return solc.compile({ sources: input }, 1, function findImports(path) {
+    try {
+      return { contents: fs.readFileSync(dir + '/' + path).toString() };
+    } catch (e) {
+      return { error: e };
+    }
+  });
 }

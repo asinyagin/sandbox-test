@@ -2,10 +2,9 @@
   "name": "sandbox-test",
   "version": "0.0.1",
   "dependencies": {
-    "ethereum-sandbox-client": "git+https://github.com/ether-camp/ethereum-sandbox-client.git",
-    "ethereum-sandbox-test": "*",
+    "ethereum-sandbox-client": "^1.0.0-beta2",
     "mocha": "^2.5.1",
-    "solidity-compiler": "git+https://github.com/ether-camp/solidity-compiler.git"
+    "solc": "^0.3.5"
   },
   "scripts": {
     "test": "mocha test/*.js"
